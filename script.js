@@ -14,23 +14,23 @@ async function treatData() {
   return data = await d3.csv(dataFile, d3.autoType).then(tabela => {
     tabela.map(linha => {
       //descomentar esta parte se for para eliminar/ignorar alguma propriedade da tabela (descomentar a linha correspondente)
-      /*delete linha.acousticness;
+      delete linha.acousticness;
       delete linha.artist;
       delete linha.danceability;
       delete linha.duration_ms;
-      delete linha.energy;
+      //delete linha.energy;
       delete linha.id;
       delete linha.instrumentalness;
       delete linha.key;
       delete linha.liveness;
       delete linha.loudness;
-      delete linha.mode;
+      //delete linha.mode;
       delete linha.song_title;
       delete linha.speechiness;
       delete linha.target;
       delete linha.tempo;
       delete linha.time_signature;
-      delete linha.valence;*/
+      //delete linha.valence;
 
       //não é para descomentar esta parte, só está aqui para vermos mais facilmente os nomes das propriedades
       /*return {
@@ -87,15 +87,25 @@ function dataAnalysis(data) {
     //análise por tipo de dados de cada coluna da tabela
     // TODO: fazer a análise de dados
     if (typeof property_values[property_name].values[0] === 'number') { //se os dados forem quantitativos
-      property_values[property_name].stats.max = Math.max(...property_values[property_name].values);
-      property_values[property_name].stats.min = Math.min(...property_values[property_name].values);
-      property_values[property_name].stats.mean = property_values[property_name].values.reduce((a, b) => a + b) / property_values[property_name].values.length;
+      property_values[property_name].stats.max = d3.max(property_values[property_name].values);
+      property_values[property_name].stats.min = d3.min(property_values[property_name].values);
+      property_values[property_name].stats.mean = d3.mean(property_values[property_name].values);
+      property_values[property_name].stats.mode = d3.mode(property_values[property_name].values);
+      property_values[property_name].stats.median = d3.median(property_values[property_name].values);
+      property_values[property_name].stats.variance = d3.variance(property_values[property_name].values);
+      property_values[property_name].stats.deviation = d3.deviation(property_values[property_name].values);
+      property_values[property_name].stats.q1 = d3.quantileSorted(property_values[property_name].values.sort(), 0); //se estiver correto é igual ao mínimo
+      property_values[property_name].stats.q2 = d3.quantileSorted(property_values[property_name].values.sort(), 0.25);
+      property_values[property_name].stats.q3 = d3.quantileSorted(property_values[property_name].values.sort(), 0.5);
+      property_values[property_name].stats.q4 = d3.quantileSorted(property_values[property_name].values.sort(), 0.75);
+      property_values[property_name].stats.q5 = d3.quantileSorted(property_values[property_name].values.sort(), 1); //se estiver correto é igual ao máximo
       //property_values[property_name].values.map((value) => {});
       //console.log(property_values[property_name]);
     } else if (typeof property_values[property_name].values[0] === 'string') { //se os dados forem categóricos
 
     };
   }
+  return property_values;
 }
 
 //---------------------------------FUNÇÃO PARA GUARDAR DADOS---------------------------------
@@ -108,6 +118,7 @@ async function saveData() {
 async function useData() {
   await saveData(); //esta linha tem de estar sempre aqui, no início da função
   console.log(treatedData);
+  console.log(analisedDataTable);
 }
 
 useData(); //esta linha tem de existir sempre senão não faz nada o programa

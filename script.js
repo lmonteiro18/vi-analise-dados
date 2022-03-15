@@ -95,10 +95,16 @@ function dataAnalysis(data) {
       property_values[property_name].stats.variance = d3.variance(property_values[property_name].values);
       property_values[property_name].stats.deviation = d3.deviation(property_values[property_name].values);
       property_values[property_name].stats.q1 = d3.quantileSorted(property_values[property_name].values.sort(), 0); //se estiver correto é igual ao mínimo
-      property_values[property_name].stats.q2 = d3.quantileSorted(property_values[property_name].values.sort(), 0.25);
-      property_values[property_name].stats.q3 = d3.quantileSorted(property_values[property_name].values.sort(), 0.5);
-      property_values[property_name].stats.q4 = d3.quantileSorted(property_values[property_name].values.sort(), 0.75);
-      property_values[property_name].stats.q5 = d3.quantileSorted(property_values[property_name].values.sort(), 1); //se estiver correto é igual ao máximo
+      property_values[property_name].stats.q2 = d3.quantileSorted(property_values[property_name].values.sort(), 0.1);
+      property_values[property_name].stats.q3 = d3.quantileSorted(property_values[property_name].values.sort(), 0.2);
+      property_values[property_name].stats.q4 = d3.quantileSorted(property_values[property_name].values.sort(), 0.3);
+      property_values[property_name].stats.q5 = d3.quantileSorted(property_values[property_name].values.sort(), 0.4);
+      property_values[property_name].stats.q6 = d3.quantileSorted(property_values[property_name].values.sort(), 0.5);
+      property_values[property_name].stats.q7 = d3.quantileSorted(property_values[property_name].values.sort(), 0.6);
+      property_values[property_name].stats.q8 = d3.quantileSorted(property_values[property_name].values.sort(), 0.7);
+      property_values[property_name].stats.q9 = d3.quantileSorted(property_values[property_name].values.sort(), 0.8);
+      property_values[property_name].stats.q10 = d3.quantileSorted(property_values[property_name].values.sort(), 0.9);
+      property_values[property_name].stats.q11 = d3.quantileSorted(property_values[property_name].values.sort(), 1); //se estiver correto é igual ao máximo
       //property_values[property_name].values.map((value) => {});
       //console.log(property_values[property_name]);
     } else if (typeof property_values[property_name].values[0] === 'string') { //se os dados forem categóricos
@@ -117,8 +123,86 @@ async function saveData() {
 //---------------------------------FUNÇÃO PARA USAR DADOS GUARDADOS---------------------------------
 async function useData() {
   await saveData(); //esta linha tem de estar sempre aqui, no início da função
-  console.log(treatedData);
+  //console.log(treatedData);
   console.log(analisedDataTable);
+
+  let svg = d3.select("#Graphs").append("svg")
+    .attr("width", "100vw")
+    .attr("height", 1000)
+    .style("background-color", "lightgray");
+
+  //eixo X
+  let scaleX = d3.scaleLinear();
+  scaleX.domain([1, 2017]).range([0, 400]);
+
+  let axis1 = d3.axisBottom()
+    .scale(scaleX)
+    .ticks(2)
+    .tickValues([0, 2017])
+    .tickFormat(d3.format(".4"));
+
+  //eixo Y
+  let scaleY = d3.scaleLinear();
+  scaleY.domain([0, 1]).range([200, 0]);
+
+  let axis2 = d3.axisLeft()
+    .scale(scaleY)
+    .ticks(5)
+    .tickValues([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+    .tickFormat((d, i) => i % 2 === 0 ? d : null);
+
+  createGraphic("Energy Graphic", svg, analisedDataTable['energy'].values.sort(), axis1, axis2, scaleX, scaleY, "red", 50, 100);
+  createGraphic("Valence Graphic", svg, analisedDataTable['valence'].values.sort(), axis1, axis2, scaleX, scaleY, "green", 600, 100);
+
 }
 
 useData(); //esta linha tem de existir sempre senão não faz nada o programa
+
+function createGraphic(title, svg, dataset, axis1, axis2, scaleX, scaleY, color, offsetX, offsetY) {
+  let g = svg.append("g")
+    .attr("width", "100%")
+    .attr("height", "100%");
+  let group1 = g.append("g")
+    .attr("width", "100%")
+    .attr("height", "100%");
+  let group2 = g.append("g")
+    .attr("width", "100%")
+    .attr("height", "100%");
+  let group3 = g.append("g")
+    .attr("width", "100%")
+    .attr("height", "100%");
+
+  group1.append("g")
+    .attr("class", "axis")
+    .attr("stroke", "black")
+    .attr("stroke-width", 1)
+    .attr("transform", `translate(${offsetX},${offsetY+200})`)
+    .call(axis1);
+  //-------------------------------------
+
+  group2.append("g")
+    .attr("class", "axis")
+    .attr("stroke", "black")
+    .attr("stroke-width", 1)
+    .attr("transform", `translate(${offsetX},${offsetY})`)
+    .call(axis2);
+  //-------------------------------------
+
+  //console.log(analisedDataTable['energy'].values);
+  group3.append("text")
+    .text(title)
+    .attr("fill", "black")
+    .attr("x", offsetX + 250 - 100)
+    .attr("y", offsetY - 30);
+  group3.selectAll("circle").data(dataset)
+    .enter()
+    .append("circle")
+    .attr("cx", (d, i) => {
+      return scaleX(i) + offsetX;
+    })
+    .attr("cy", (d, i) => {
+      return scaleY(d) + offsetY;
+    })
+    .attr("r", 0.75)
+    .attr("fill", color);
+}

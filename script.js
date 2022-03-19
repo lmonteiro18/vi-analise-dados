@@ -109,6 +109,7 @@ function dataAnalysis(data) {
       //console.log(property_values[property_name]);
     } else if (typeof property_values[property_name].values[0] === 'string') { //se os dados forem categóricos
       let all_values = property_values[property_name].values;
+      //all_values.map(d=>d==="Drake" && console.log(d)); //Se quisermos ir buscar o número de músicas de alguém específico (que saibamos que esteja na lista), ou verificar se alguém está na lista
       let amostra = data.length;
       let stats = {};
       all_values.map(d => {
@@ -119,8 +120,8 @@ function dataAnalysis(data) {
       });
       all_values.map(d => stats[d]++);
       property_values[property_name].stats = stats;
-      console.log(property_values[property_name].stats);
-      console.log(Object.keys(property_values[property_name].stats).length);
+      console.log(property_values[property_name].stats); //número de músicas por artista
+      console.log(Object.keys(property_values[property_name].stats).length); //número de artistas diferentes (alguns feats são contados como diferente)
       Object.keys(stats).map((property_name) => {
         //let freq_absoluta = (stats[property_name] / amostra).toFixed(2);
         //console.log(`${property_name} -> Freq_Absoluta: ${freq_absoluta} --- Freq_Relativa: ${freq_absoluta * 100}%`);

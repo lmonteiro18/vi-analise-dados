@@ -222,6 +222,7 @@ async function useData() {
     .style("transform", (d, i) => {
       let x = x_inicial + multiplicador * espacamento_horizontal;
       let y;
+      //random para escolher entre as notas repetidas na pauta
       if (d.key_moda !== 11) {
         if (Math.random() <= 0.5) {
           y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
@@ -232,10 +233,13 @@ async function useData() {
         y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
       }
       console.log(d.key_moda + ", " + x + ", " + y);
+
+      //transformações necessárias para a representação da valência
       let transformation1 = `translate(${x}px, ${y}px)`;
       let transformation2 = `rotate(180deg)`;
       //let transformation3 = `translate(100px, ${altura_total - d.key_moda * espacamento_vertical}px)`;
 
+      //verificação do número de notas por coluna e o espaçamento entre elas
       if (notas_coluna.length < 2) {
         for (let i = 0; i < notas_coluna.length; i++) {
           if (Math.abs(notas_coluna[i], y) >= espacamento_vertical * 3) {
@@ -257,12 +261,12 @@ async function useData() {
         offset_validation = 0;
       }
 
-      //valência
+      //aplicação das transformações relativas à valência
       if (d.valence_mediana >= 0.5) {
         console.log("Feliz: " + i, d.valence_mediana);
         return `${transformation1}`;
       } else {
-        console.log("Triste: " + i + ", " +  d.valence_mediana);
+        console.log("Triste: " + i + ", " + d.valence_mediana);
         return `${transformation1} ${transformation2}`;
       }
       //return `${transformation2} ${transformation3}`;

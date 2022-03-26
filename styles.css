@@ -1,4 +1,13 @@
 body {
   margin: 0;
-  overflow-x: hidden;
+  overflow-x: scroll;
+  background-color: black;
+}
+
+.info{
+  opacity: 0;
+}
+
+.nota:hover > .info {
+  opacity: 1;
 }

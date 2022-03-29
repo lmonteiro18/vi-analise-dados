@@ -155,7 +155,7 @@ async function useData() {
   await saveData(); //esta linha tem de estar sempre aqui, no início da função
 
   //console.log(treatedData);
-  //console.log(analisedDataTable);
+  console.log(analisedDataTable);
 
   const dataset = analisedDataTable.artist.stats;
 
@@ -186,7 +186,7 @@ async function useData() {
   let comprimento_haste = 45;
 
   //variáveis pauta
-  let espacamento_vertical = 40;
+  let espacamento_vertical = 33.15;
   let n_linhas = 13; //na verdade só 5 é que aparecem
   let altura_total = n_linhas * espacamento_vertical;
 
@@ -196,6 +196,12 @@ async function useData() {
 
   for (let i = 0; i < n_linhas; i++) {
     let y_linhaPauta = altura_total - i * espacamento_vertical;
+    pauta.append("text")
+    .attr("x", 0)
+    .attr("y", y_linhaPauta)
+    .attr("dy", "0.35em")
+    .attr("fill", "white")
+    .text(i);
     pauta.append("line")
       .attr("class", "linha_pauta")
       .attr("x1", 0)
@@ -204,7 +210,7 @@ async function useData() {
       .attr("y2", y_linhaPauta)
       .attr("stroke", "white")
       .attr("stroke-width", 1)
-      .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.5" : "1");
+      .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.25" : "1");
   }
 
   let espacamento_horizontal = 50;
@@ -219,11 +225,12 @@ async function useData() {
     .enter()
     .append("g")
     .attr("class", "nota")
-    .style("transform", (d, i) => {
+    .style("transform", d => {
       let x = x_inicial + multiplicador * espacamento_horizontal;
       let y;
+
       //random para escolher entre as notas repetidas na pauta
-      if (d.key_moda !== 11) {
+      /*if (d.key_moda !== 11) {
         if (Math.random() <= 0.5) {
           y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
         } else {
@@ -231,8 +238,48 @@ async function useData() {
         }
       } else {
         y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
+      }*/
+      switch (d.key_moda) {
+        case 0:
+          y = altura_total - 0 * espacamento_vertical;
+          break;
+        case 1:
+          y = altura_total - 0 * espacamento_vertical;
+          break;
+        case 2:
+          y = altura_total - 1 * espacamento_vertical;
+          break;
+        case 3:
+          y = altura_total - 1 * espacamento_vertical;
+          break;
+        case 4:
+          y = altura_total - 2 * espacamento_vertical;
+          break;
+        case 5:
+          y = altura_total - 3 * espacamento_vertical;
+          break;
+        case 6:
+          y = altura_total - 3 * espacamento_vertical;
+          break;
+        case 7:
+          y = altura_total - 4 * espacamento_vertical;
+          break;
+        case 8:
+          y = altura_total - 4 * espacamento_vertical;
+          break;
+        case 9:
+          y = altura_total - 5 * espacamento_vertical;
+          break;
+        case 10:
+          y = altura_total - 5 * espacamento_vertical;
+          break;
+        case 11:
+          y = altura_total - 6 * espacamento_vertical;
+          break;
+        default:
+          y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
       }
-      console.log(d.key_moda + ", " + x + ", " + y);
+      //console.log(d.key_moda + ", " + x + ", " + y);
 
       //transformações necessárias para a representação da valência
       let transformation1 = `translate(${x}px, ${y}px)`;
@@ -263,15 +310,16 @@ async function useData() {
 
       //aplicação das transformações relativas à valência
       if (d.valence_mediana >= 0.5) {
-        console.log("Feliz: " + i, d.valence_mediana);
-        return `${transformation1}`;
+        //console.log("Feliz: " + i, d.valence_mediana);
+        return transformation1;
       } else {
-        console.log("Triste: " + i + ", " + d.valence_mediana);
+        //console.log("Triste: " + i + ", " + d.valence_mediana);
         return `${transformation1} ${transformation2}`;
       }
-      //return `${transformation2} ${transformation3}`;
-      //return `${transformation1} ${transformation2} ${transformation3}`;
-    });
+      //return transformation1;
+    })
+    //.style("opacity", (d, i) => i === 0 ? "1" : "1")
+    ;
 
   svg.selectAll(".nota").data(dataset)
     .append("text")

@@ -2,12 +2,123 @@ body {
   margin: 0;
   overflow-x: scroll;
   background-color: black;
+  font-family: "Roboto", sans-serif;
+  color: white;
 }
 
-.info{
+svg {
+  position: absolute;
+  top: 180px;
+  z-index: -10;
+}
+
+.info {
   opacity: 0;
 }
 
-.nota:hover > .info {
+.nota:hover>.info {
   opacity: 1;
+}
+
+.box {
+  background-color: #313131;
+}
+
+/*Nome do Visualizador---------------- */
+#titulo {
+  margin-top: 10px;
+  margin-left: 2%;
+}
+
+#spotify, #songs, #specs {
+  width: 650px;
+  border-radius: 10px;
+  padding: 5px 0;
+  margin: 5px 0;
+}
+
+h1 {
+  margin: 0;
+  margin-left: 10px;
+  font-weight: 700;
+  font-size: 25px;
+}
+
+#songs {
+  margin-left: 3%;
+}
+
+#specs {
+  margin-left: 6%;
+}
+
+/*Keys Pauta------------------------- */
+#keys {
+  margin-top: 46px;
+  margin-left: 2%;
+  width: 40px;
+  font-size: 15px;
+  text-align: center;
+  padding: 0.5px 0;
+  border-radius: 10px;
+}
+
+/*Legendas---------------------------- */
+#legendas {
+  margin-top: 2%;
+  margin-right: 2%;
+  width: 180px;
+  padding: 5px 15px;
+  border-radius: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#n_musicas, #valencia, #energia, #escala {
+  margin-bottom: 10px;
+}
+
+.titulo_legenda {
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.corpo_legenda {
+  font-size: 13px;
+  color: #C8C8C8;
+  margin-left: 10px;
+}
+
+.alinhar_vertical {
+  display: flex;
+  align-items: center;
+}
+
+.tamanho_imagem {
+  width: auto;
+  height: 25px;
+}
+
+.same_line {
+  display: inline-block;
+}
+
+#tamanho_sustenida {
+  height: 7px;
+  width: auto;
+}
+
+/*CopyRight---------------------------- */
+#copyright {
+  position: fixed;
+  margin-bottom: 2%;
+  margin-left: 2%;
+  bottom: 0;
+  left: 0;
+  font-size: 12px;
 }

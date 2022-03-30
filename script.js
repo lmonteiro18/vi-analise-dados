@@ -3,11 +3,10 @@ let treatedData;
 let analisedDataTable;
 
 //---------------------------------FUNÇÃO PARA TRATAMENTO DE DADOS---------------------------------
-// NOTE: à partida os dados da nossa tabela não precisam de mais tratamento que o do autoType, para efeitos de análise
 async function treatData() {
   return data = await d3.csv(dataFile, d3.autoType).then(tabela => {
     tabela.map(linha => {
-      //descomentar esta parte se for para eliminar/ignorar alguma propriedade da tabela (descomentar a linha correspondente)
+      //eliminação das colunas da tabela que não pretendemos utilizar
       delete linha.acousticness;
       //delete linha.artist;
       delete linha.danceability;
@@ -32,7 +31,7 @@ async function treatData() {
 
 //---------------------------------FUNÇÃO PARA ANÁLISE DE DADOS---------------------------------
 function dataAnalysis(data) {
-  let n_properties = Object.keys(data[0]).length; //o método Object.keys() devolve os nomes das propriedades do objeto num array
+  let n_properties = Object.keys(data[0]).length;
   let property_values;
   for (let j = 0; j < n_properties; j++) {
     let property_name = Object.keys(data[0])[j];
@@ -57,10 +56,8 @@ function dataAnalysis(data) {
     });
 
     //análise por tipo de dados de cada coluna da tabela
-    // TODO: fazer a análise de dados
-    if (typeof property_values[property_name].values[0] === 'string' && property_name === 'artist') { //se os dados forem categóricos
+    if (property_name === 'artist') { //se os dados forem categóricos
       let all_values = property_values[property_name].values;
-      //all_values.map(d=>d==="Drake" && console.log(d)); //Se quisermos ir buscar o número de músicas de alguém específico (que saibamos que esteja na lista), ou verificar se alguém está na lista
       let amostra = data.length;
       let stats = {};
       all_values.map((d, i) => {
@@ -152,16 +149,17 @@ async function saveData() {
 
 //---------------------------------FUNÇÃO PARA USAR DADOS GUARDADOS---------------------------------
 async function useData() {
-  await saveData(); //esta linha tem de estar sempre aqui, no início da função
+  await saveData();
 
-  //console.log(treatedData);
   console.log(analisedDataTable);
 
   const dataset = analisedDataTable.artist.stats;
 
   let n_artists = Object.keys(analisedDataTable.artist.stats).length;
 
-  let svg_width = n_artists / 3 * 35;
+  let artistas_porColuna = 1;
+  let espacamento_horizontal = 35;
+  let svg_width = n_artists / artistas_porColuna * espacamento_horizontal + 350;
 
   let svg = d3.select("#Graphs").append("svg")
     .attr("width", svg_width)
@@ -170,8 +168,8 @@ async function useData() {
   //NOTA
   //variáveis círculo
   let raio_circulo = 13;
-  let cx_circulo = 0; //alterar com algo
-  let cy_circulo = 0; //alterar com algo
+  let cx_circulo = 0;
+  let cy_circulo = 0;
 
   //variáveis polígono
   let pointX1 = cx_circulo - raio_circulo
@@ -186,9 +184,9 @@ async function useData() {
   let comprimento_haste = 45;
 
   //variáveis pauta
-  let espacamento_vertical = 33.15;
-  let n_linhas = 13; //na verdade só 5 é que aparecem
-  let altura_total = n_linhas * espacamento_vertical;
+  let espacamento_vertical = 28;
+  let n_linhas = 13;
+  let altura_total = n_linhas * espacamento_vertical + 5;
 
   //linhas da pauta
   let pauta = svg.append("g")
@@ -196,12 +194,6 @@ async function useData() {
 
   for (let i = 0; i < n_linhas; i++) {
     let y_linhaPauta = altura_total - i * espacamento_vertical;
-    pauta.append("text")
-    .attr("x", 0)
-    .attr("y", y_linhaPauta)
-    .attr("dy", "0.35em")
-    .attr("fill", "white")
-    .text(i);
     pauta.append("line")
       .attr("class", "linha_pauta")
       .attr("x1", 0)
@@ -210,10 +202,9 @@ async function useData() {
       .attr("y2", y_linhaPauta)
       .attr("stroke", "white")
       .attr("stroke-width", 1)
-      .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.25" : "1");
+      .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.1" : "1");
   }
 
-  let espacamento_horizontal = 50;
   let multiplicador = 0;
   let x_inicial = 100;
   let notas_coluna = [];
@@ -225,119 +216,47 @@ async function useData() {
     .enter()
     .append("g")
     .attr("class", "nota")
+    .attr("valence", d => d.valence_mediana)
+    .attr("key", d => d.key_moda)
     .style("transform", d => {
       let x = x_inicial + multiplicador * espacamento_horizontal;
-      let y;
 
-      //random para escolher entre as notas repetidas na pauta
-      /*if (d.key_moda !== 11) {
-        if (Math.random() <= 0.5) {
-          y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
+      let keyToLineNr = d3.scaleOrdinal()
+        .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+        .range([0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6]);
+
+      let scaleYNote = key => {
+        //random para decidir se a nota fica na posição mais acima ou mais abaixo
+        //(uma vez que existem notas repetidas na pauta)
+        if (keyToLineNr(key) < 6) { //porque as notas só se repetem até ao lá inclusive (excluindo o Si, portanto)
+          if (Math.random() < 0.5) {
+            return keyToLineNr(key) * espacamento_vertical;
+          } else {
+            return (keyToLineNr(key) + 7) * espacamento_vertical;
+          }
         } else {
-          y = altura_total - (Math.floor(d.key_moda / 2) + 6) * espacamento_vertical;
+          return keyToLineNr(key) * espacamento_vertical;
         }
-      } else {
-        y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
-      }*/
-      switch (d.key_moda) {
-        case 0:
-          y = altura_total - 0 * espacamento_vertical;
-          break;
-        case 1:
-          y = altura_total - 0 * espacamento_vertical;
-          break;
-        case 2:
-          y = altura_total - 1 * espacamento_vertical;
-          break;
-        case 3:
-          y = altura_total - 1 * espacamento_vertical;
-          break;
-        case 4:
-          y = altura_total - 2 * espacamento_vertical;
-          break;
-        case 5:
-          y = altura_total - 3 * espacamento_vertical;
-          break;
-        case 6:
-          y = altura_total - 3 * espacamento_vertical;
-          break;
-        case 7:
-          y = altura_total - 4 * espacamento_vertical;
-          break;
-        case 8:
-          y = altura_total - 4 * espacamento_vertical;
-          break;
-        case 9:
-          y = altura_total - 5 * espacamento_vertical;
-          break;
-        case 10:
-          y = altura_total - 5 * espacamento_vertical;
-          break;
-        case 11:
-          y = altura_total - 6 * espacamento_vertical;
-          break;
-        default:
-          y = altura_total - Math.floor(d.key_moda / 2) * espacamento_vertical;
       }
-      //console.log(d.key_moda + ", " + x + ", " + y);
+      let y = altura_total - scaleYNote(d.key_moda);
+
 
       //transformações necessárias para a representação da valência
       let transformation1 = `translate(${x}px, ${y}px)`;
       let transformation2 = `rotate(180deg)`;
-      //let transformation3 = `translate(100px, ${altura_total - d.key_moda * espacamento_vertical}px)`;
+      let transformation3 = `scale(0.7)`;
 
-      //verificação do número de notas por coluna e o espaçamento entre elas
-      if (notas_coluna.length < 2) {
-        for (let i = 0; i < notas_coluna.length; i++) {
-          if (Math.abs(notas_coluna[i], y) >= espacamento_vertical * 3) {
-            //console.log(i + ": " + Math.abs(notas_coluna[i], y));
-            offset_validation++;
-          }
-        }
-        if (offset_validation === notas_coluna.length) {
-          //console.log(notas_coluna);
-          notas_coluna.push(y);
-        } else {
-          notas_coluna = [];
-          offset_validation = 0;
-        }
-      } else {
-        //console.log(notas_coluna);
-        notas_coluna = [];
-        multiplicador++;
-        offset_validation = 0;
-      }
+      //avanço para que cada nota fique numa coluna diferente
+      multiplicador++;
 
       //aplicação das transformações relativas à valência
       if (d.valence_mediana >= 0.5) {
-        //console.log("Feliz: " + i, d.valence_mediana);
-        return transformation1;
+        return transformation1 + transformation3;
       } else {
-        //console.log("Triste: " + i + ", " + d.valence_mediana);
-        return `${transformation1} ${transformation2}`;
+        return `${transformation1} ${transformation2} ${transformation3}`;
       }
-      //return transformation1;
     })
-    //.style("opacity", (d, i) => i === 0 ? "1" : "1")
-    ;
-
-  svg.selectAll(".nota").data(dataset)
-    .append("text")
-    .attr("class", "info")
-    .attr("x", 20)
-    .style("z-index", 10)
-    .attr("fill", "white")
-    //.style("transform", d => d.valence_mediana < 0.5 ? "rotate(-180deg)" : null)
-    .text((d, i) => {
-      return i + " -> " +
-        "Nota: " + d.key_moda + ", " +
-        "Escala: " + d.mode_moda + ", " +
-        "Energia: " + d.energy_mediana + ", " +
-        "Valência: " + d.valence_mediana + ", " +
-        "Nº Músicas: " + d.songs.length;
-    });
-
-
+  ;
 
   //hastes
   svg.selectAll(".nota").data(dataset)
@@ -365,7 +284,7 @@ async function useData() {
     //número de músicas
     .attr("fill", d => {
       if (d.songs.length < 3) {
-        return "#00C814";
+        return "#1DB954";
       } else if (d.songs.length >= 3 && d.songs.length < 6) {
         return "#A01BFF";
       } else {
@@ -449,182 +368,57 @@ async function useData() {
     .style("display", d => d.key_moda === 1 || d.key_moda === 3 || d.key_moda === 6 || d.key_moda === 8 || d.key_moda === 10 ? "block" : "none");
 
 
+  //mostrar informação do artista ao fazer hover nas notas
+  let notas = document.querySelectorAll(".nota");
+  let info_artista = document.querySelector(".info_artista");
 
+  window.addEventListener("mousemove", moveCursor);
 
-  /*let scaleX = d3.scaleLinear();
-  scaleX.domain([0, n_artists]).range([0, n_artists * 25]);
+  function moveCursor(e) {
+    info_artista.style.top = e.pageY + "px";
+    info_artista.style.left = e.pageX + "px";
 
-  let notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    let transformation1 = "translateX(0)";
+    let transformation2 = "translateX(-100%)";
+    let transformation3 = "translateY(0)";
+    let transformation4 = "translateY(-100%)";
 
-  for (let i = 0; i < 12; i++) {
-    if (i % 2 == 0) {
-      svg.append("line")
-        .attr("x1", 300)
-        .attr("x2", n_artists * 25 + 50)
-        .attr("y1", i * 30 + 60)
-        .attr("y2", i * 30 + 60)
-        .attr("stroke-width", 1)
-        .attr("stroke", "black");
+    if (e.pageX < window.innerWidth / 2 && e.pageY < window.innerHeight / 2) {
+      info_artista.style.transform = transformation1 + transformation3;
+    } else if (e.pageX < window.innerWidth / 2 && e.pageY >= window.innerHeight / 2) {
+      info_artista.style.transform = transformation1 + transformation4;
+    } else if (e.pageX >= window.innerWidth / 2 && e.pageY < window.innerHeight / 2) {
+      info_artista.style.transform = transformation2 + transformation3;
+    } else if (e.pageX >= window.innerWidth / 2 && e.pageY >= window.innerHeight / 2) {
+      info_artista.style.transform = transformation2 + transformation4;
     }
   }
 
-  for (let i = 0; i < n_artists; i++) {
-    let x = scaleX(i) + 50;
-    let y = 0;
-    //circulo ou poligono
-    if (n_musicas <= 2) { //artistas com duas músicas ou menos
-      svg.append("polygon")
-        .attr("x", 300)
-        .attr("y", i * 25 + 50)
-        .attr("points", )
-        .attr("fill", "red");
-    } else if (n_musicas >= 3 && n_musicas <= 5) { //artistas com entre três e 5 músicas (inclusive)
-      svg.append("polygon")
-        .attr("x", 300)
-        .attr("y", i * 25 + 50)
-        .attr("fill", "red");
-    } else { //artistas com mais de 5 músicas
-      svg.append("circle")
-        .attr("cx", 300)
-        .attr("cy", i * 25 + 50)
-        .attr("fill", "red");
-    }
-    //haste
-    svg.append("line")
-      .attr("x1", 300)
-      .attr("x2", n_artists * 25 + 50)
-      .attr("y1", i * 50 + 50)
-      .attr("y2", i * 50 + 50)
-      .attr("stroke-width", 1)
-      .attr("stroke", "black");
-    //tracinhos
-    for (let j = 0; j < energy_group; j++) {
-      svg.append("line")
-        .attr("x1", 300)
-        .attr("x2", n_artists * 25 + 50)
-        .attr("y1", i * 50 + 50)
-        .attr("y2", i * 50 + 50)
-        .attr("stroke-width", 1)
-        .attr("stroke", "black");
-    }
-  }*/
+  for (let j = 0; j < notas.length; j++) {
+    notas[j].addEventListener("mouseenter", () => {
+      let artist_name = analisedDataTable.artist.stats[j].name;
+      let artist_songs = analisedDataTable.artist.stats[j].songs;
 
-  /*
-    //eixo X
-    let scaleX0 = d3.scaleLinear();
-    scaleX0.domain([1, 2017]).range([0, 400]);
+      let artist_title = document.createElement("h3");
+      artist_title.innerText = artist_name;
+      info_artista.append(artist_title);
 
-    let scaleX = d3.scaleLinear();
-    scaleX.domain([0, 1]).range([0, 200]);
+      let song_list = document.createElement("ul");
+      info_artista.append(song_list);
 
-    let axis1 = d3.axisBottom()
-      .scale(scaleX0)
-      .ticks(2)
-      .tickValues([0, 2017])
-      .tickFormat(d3.format(".4"));
-
-    let axis3 = d3.axisBottom()
-      .scale(scaleX)
-      .ticks(5)
-      .tickValues([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-      .tickFormat((d, i) => i % 2 === 0 ? d : null);
-
-    //eixo Y
-    let scaleY = d3.scaleLinear();
-    scaleY.domain([0, 1]).range([200, 0]);
-
-    let axis2 = d3.axisLeft()
-      .scale(scaleY)
-      .ticks(5)
-      .tickValues([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
-      .tickFormat((d, i) => i % 2 === 0 ? d : null);
-
-    let energy_valence = [];
-    for (let i = 0; i < 2017; i++) {
-      energy_valence.push({
-        energy: analisedDataTable.energy.values[i],
-        valence: analisedDataTable.valence.values[i],
-        mode: analisedDataTable.mode.values[i]
+      artist_songs.map(song => {
+        let song_name = document.createElement("li");
+        song_name.innerText = song;
+        song_name.classList.add(".song_name");
+        song_list.append(song_name);
       });
-    }
-    */
-  //console.log(energy_valence);
-
-  //------------------------------------------------GRÁFICOS------------------------------------------------
-  //createGraphic("Energy Graphic", svg, analisedDataTable['energy'].values.sort(), axis1, axis2, scaleX0, scaleY, "red", 50, 100);
-  //createGraphic("Valence Graphic", svg, analisedDataTable['valence'].values.sort(), axis1, axis2, scaleX0, scaleY, "green", 600, 100);
-  //createGraphic("Energy Graphic", svg, energy_valence, axis3, axis2, scaleX, scaleY, "red", 50, 500);
-  //createGraphic("Valence Graphic", svg, energy_valence, axis3, axis2, scaleX, scaleY, "green", 600, 500);
-  //--------------------------------------------------------------------------------------------------------
-}
-
-useData(); //esta linha tem de existir sempre senão não faz nada o programa
-
-function createGraphic(title, svg, dataset, axis1, axis2, scaleX, scaleY, color, offsetX, offsetY) {
-  let g = svg.append("g")
-    .attr("width", "100%")
-    .attr("height", "100%");
-  let group1 = g.append("g")
-    .attr("width", "100%")
-    .attr("height", "100%");
-  let group2 = g.append("g")
-    .attr("width", "100%")
-    .attr("height", "100%");
-  let group3 = g.append("g")
-    .attr("width", "100%")
-    .attr("height", "100%");
-
-  group1.append("g")
-    .attr("class", "axis")
-    .attr("stroke", "black")
-    .attr("stroke-width", 1)
-    .attr("transform", `translate(${offsetX},${offsetY+200})`)
-    .call(axis1);
-  //-------------------------------------
-
-  group2.append("g")
-    .attr("class", "axis")
-    .attr("stroke", "black")
-    .attr("stroke-width", 1)
-    .attr("transform", `translate(${offsetX},${offsetY})`)
-    .call(axis2);
-  //-------------------------------------
-
-  //console.log(analisedDataTable['energy'].values);
-  group3.append("text")
-    .text(title)
-    .attr("fill", "black")
-    .attr("x", offsetX + 250 - 100)
-    .attr("y", offsetY - 30);
-  group3.selectAll("circle").data(dataset)
-    .enter()
-    .append("circle")
-    .attr("cx", (d, i) => {
-      if (typeof d === "object") {
-        return scaleX(d.valence) + offsetX;
-      } else {
-        //console.log("Value X: " + (scaleX(d) + offsetX));
-        return scaleX(i) + offsetX;
-      }
-    })
-    .attr("cy", (d, i) => {
-      if (typeof d === "object") {
-        return scaleY(d.energy) + offsetY;
-      } else {
-        //console.log("Value Y: " + (scaleY(d) + offsetY));
-        return scaleY(d) + offsetY;
-      }
-    })
-    .attr("r", 1.25)
-    .attr("fill", (d) => {
-      if (typeof d === "object") {
-        if (d.mode === 0) {
-          return "blue";
-        } else if (d.mode === 1) {
-          return "red";
-        }
-      } else {
-        return color;
-      }
+      info_artista.classList.add("show_infoArtista");
     });
+    notas[j].addEventListener("mouseleave", () => {
+      info_artista.classList.remove("show_infoArtista");
+      info_artista.innerHTML = "";
+    });
+  };
 }
+
+useData();

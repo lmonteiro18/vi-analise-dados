@@ -1,14 +1,16 @@
 body {
   margin: 0;
   overflow-x: scroll;
+  overflow-y: hidden;
   background-color: black;
   font-family: "Roboto", sans-serif;
   color: white;
+  padding-top: 5px;
 }
 
 svg {
   position: absolute;
-  top: 180px;
+  top: 160px;
   z-index: -10;
 }
 
@@ -27,7 +29,10 @@ svg {
 /*Nome do Visualizador---------------- */
 #titulo {
   margin-top: 10px;
-  margin-left: 2%;
+  margin-left: 1%;
+  position: fixed;
+  top: 0;
+  left:0;
 }
 
 #spotify, #songs, #specs {
@@ -45,32 +50,42 @@ h1 {
 }
 
 #songs {
-  margin-left: 3%;
+  margin-left: 6%;
 }
 
 #specs {
-  margin-left: 6%;
+  margin-left: 12%;
 }
 
 /*Keys Pauta------------------------- */
 #keys {
-  margin-top: 46px;
-  margin-left: 2%;
+  position: fixed;
+  top: 173px;
+  left: 1%;
+  display: inline-block;
   width: 40px;
-  font-size: 15px;
+  font-size: 14px;
   text-align: center;
   padding: 0.5px 0;
   border-radius: 10px;
 }
 
+#keys p {
+  margin: 0 0 27.4% 0;
+}
+
+#keys p:first-of-type {
+  margin-top: 10px;
+}
+
 /*Legendas---------------------------- */
 #legendas {
-  margin-top: 2%;
-  margin-right: 2%;
+  margin-top: 15px;
+  margin-right: 1%;
   width: 180px;
   padding: 5px 15px;
   border-radius: 10px;
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
 }
@@ -82,7 +97,7 @@ h1 {
 .titulo_legenda {
   font-size: 15px;
   font-weight: 500;
-  margin-top: 15px;
+  margin-top: 10px;
   margin-bottom: 5px;
   margin-left: 0;
   margin-right: 0;
@@ -91,7 +106,11 @@ h1 {
 .corpo_legenda {
   font-size: 13px;
   color: #C8C8C8;
-  margin-left: 10px;
+  margin: 5% 0 5% 10px;
+}
+
+#valencia .corpo_legenda {
+  margin: 3% 0 3% 10px;
 }
 
 .alinhar_vertical {
@@ -113,12 +132,49 @@ h1 {
   width: auto;
 }
 
+#valencia2 {
+  transform: rotate(180deg);
+}
+
 /*CopyRight---------------------------- */
 #copyright {
   position: fixed;
-  margin-bottom: 2%;
-  margin-left: 2%;
+  margin-bottom: 15px;
+  margin-left: 1%;
   bottom: 0;
   left: 0;
   font-size: 12px;
+  color: white;
+}
+
+/*Info Artista---------------------------- */
+.info_artista {
+  position: absolute;
+  opacity: 0;
+  transition: all .35s ease;
+  background-color: #313131;
+  border: none;
+  border-radius: 0.5vw;
+  z-index: 15;
+  width: 200px;
+  height: auto;
+  display: inline-block;
+  padding: 20px;
+}
+
+.show_infoArtista {
+  opacity: 1;
+}
+
+.info_artista h3 {
+  margin: 0;
+}
+
+.info_artista ul {
+  margin: 10px 0 0 0;
+  list-style: outside;
+}
+
+.info_artista li {
+  margin: 0;
 }

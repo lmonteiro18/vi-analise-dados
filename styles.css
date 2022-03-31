@@ -92,14 +92,14 @@ h1 {
 }
 
 #n_musicas, #valencia, #energia, #escala {
-  margin-bottom: 3vh; /*10px*/
+  margin-bottom: 20%; /*10px*/
 }
 
 .titulo_legenda {
   font-size: 15px;
   font-weight: 500;
-  margin-top: 3vh; /*10px*/
-  margin-bottom: 1.5vh; /*5px*/
+  margin-top: 10%; /*10px*/
+  margin-bottom: 10%; /*5px*/
   margin-left: 0;
   margin-right: 0;
 }
@@ -107,11 +107,11 @@ h1 {
 .corpo_legenda {
   font-size: 13px;
   color: #C8C8C8;
-  margin: 1.5vh 0 5% 10px; /*  margin: 5% 0 5% 10px;*/
+  margin: 5% 0 5% 10px;
 }
 
 #valencia .corpo_legenda {
-  margin: 1vh 0 3% 10px; /*  margin: 3% 0 3% 10px;*/
+  margin: 3% 0 3% 10px;
 }
 
 .alinhar_vertical {

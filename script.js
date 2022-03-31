@@ -163,7 +163,13 @@ async function useData() {
 
   let svg = d3.select("#Graphs").append("svg")
     .attr("width", svg_width)
-    .style("min-height", "100vh");
+    .style("min-height", "60vh");
+
+  let svg2 = d3.select("#Graphs2").append("svg")
+      .attr("width", 100)
+      .style("min-height", "60vh");
+
+  let notas_labels = ["Dó", "Ré", "Mi", "Fá", "Sol", "Lá", "Si", "Dó", "Ré", "Mi", "Fá", "Sol", "Lá"];
 
   //NOTA
   //variáveis círculo
@@ -196,13 +202,19 @@ async function useData() {
     let y_linhaPauta = altura_total - i * espacamento_vertical;
     pauta.append("line")
       .attr("class", "linha_pauta")
-      .attr("x1", 0)
+      .attr("x1", 60)
       .attr("y1", y_linhaPauta)
       .attr("x2", svg_width)
       .attr("y2", y_linhaPauta)
       .attr("stroke", "white")
       .attr("stroke-width", 1)
       .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.1" : "1");
+    svg2.append("text")
+        .attr("class", "notas_labels")
+        .attr("x", 25)
+        .attr("y", y_linhaPauta + 4)
+        .attr("fill", "white")
+        .text(notas_labels[i]);
   }
 
   let multiplicador = 0;

@@ -80,6 +80,9 @@ h1 {
 
 /*Legendas---------------------------- */
 #legendas {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
   margin-top: 15px;
   margin-right: 1%;
   width: 180px;
@@ -92,14 +95,14 @@ h1 {
 }
 
 #n_musicas, #valencia, #energia, #escala {
-  margin-bottom: 5%; /*10px*/
+  /*margin-bottom: 5%; /*10px*/
 }
 
 .titulo_legenda {
   font-size: 15px;
   font-weight: 500;
-  margin-top: 5%; /*10px*/
-  margin-bottom: 5%; /*5px*/
+  /*margin-top: 5%; /*10px*/
+  /*margin-bottom: 5%; /*5px*/
   margin-left: 0;
   margin-right: 0;
 }

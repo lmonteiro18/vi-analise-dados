@@ -123,10 +123,11 @@ h1 {
 .titulo_legenda {
   font-size: 15px;
   font-weight: 500;
+  margin: 3% 0 3% 0;
   /*margin-top: 5%; /*10px*/
   /*margin-bottom: 5%; /*5px*/
-  margin-left: 0;
-  margin-right: 0;
+  /*margin-left: 0;
+  margin-right: 0;*/
 }
 
 .corpo_legenda {

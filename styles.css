@@ -13,7 +13,7 @@ body {
   flex-direction: column;
   justify-content: center;
   position: absolute;
-  top: 160px;
+  top: 18vh;
   z-index: 5;
   min-height: 75vh;
 }
@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   justify-content: center;
   position: fixed;
-  top: 160px;
+  top: 18vh;
   z-index: 15;
   min-height: 75vh;
 }
@@ -75,7 +75,7 @@ h1 {
 #keys {
   position: fixed;
   top: 173px;
-  left: 1.5%;
+  left: 18px;
   display: inline-block;
   width: 40px;
   height: 60vh;

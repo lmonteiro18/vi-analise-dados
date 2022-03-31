@@ -211,7 +211,7 @@ async function useData() {
       .style("opacity", i % 2 === 1 || i === 0 || i === n_linhas - 1 ? "0.1" : "1");
     svg2.append("text")
         .attr("class", "notas_labels")
-        .attr("x", 25)
+        .attr("x", 28)
         .attr("y", y_linhaPauta + 4)
         .attr("fill", "white")
         .text(notas_labels[i]);
